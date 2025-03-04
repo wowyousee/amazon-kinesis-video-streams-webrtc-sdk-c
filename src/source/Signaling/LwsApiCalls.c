@@ -164,7 +164,7 @@ INT32 lwsHttpCallbackRoutine(struct lws* wsi, enum lws_callback_reasons reason, 
                 pLwsCallInfo->callInfo.responseDataLen = (UINT32) dataSize;
 
                 if (pLwsCallInfo->callInfo.callResult != SERVICE_CALL_RESULT_OK) {
-                    DLOGW("Received client http read response:  %s", pLwsCallInfo->callInfo.responseData);
+                    DLOGD("Received client http read response:  %s", pLwsCallInfo->callInfo.responseData);
                     if (pLwsCallInfo->callInfo.callResult == SERVICE_CALL_FORBIDDEN) {
                         if (isCallResultSignatureExpired(&pLwsCallInfo->callInfo)) {
                             // Set more specific result, this is so in the state machine
@@ -176,7 +176,7 @@ INT32 lwsHttpCallbackRoutine(struct lws* wsi, enum lws_callback_reasons reason, 
                         }
                     }
                 } else {
-                    DLOGV("Received client http read response:  %s", pLwsCallInfo->callInfo.responseData);
+                    DLOGD("Received client http read response:  %s", pLwsCallInfo->callInfo.responseData);
                 }
             }
 
@@ -573,9 +573,10 @@ STATUS lwsCompleteSync(PLwsCallInfo pCallInfo)
     // Execute the LWS REST call
     MEMSET(&connectInfo, 0x00, SIZEOF(struct lws_client_connect_info));
     connectInfo.context = pContext;
-    connectInfo.ssl_connection = LCCSCF_USE_SSL;
-    connectInfo.port = SIGNALING_DEFAULT_SSL_PORT;
+    connectInfo.ssl_connection = 0; // 移除LCCSCF_USE_SSL标志
+    connectInfo.port = 18080; // 使用HTTP默认端口而不是HTTPS的443
 
+    //kvs用来获取pHostStart和path
     CHK_STATUS(getRequestHost(pCallInfo->callInfo.pRequestInfo->url, &pHostStart, &pHostEnd));
     CHK(pHostEnd == NULL || *pHostEnd == '/' || *pHostEnd == '?', STATUS_INTERNAL_ERROR);
 
@@ -596,7 +597,7 @@ STATUS lwsCompleteSync(PLwsCallInfo pCallInfo)
     // NULL terminate the host
     *pHostEnd = '\0';
 
-    connectInfo.address = pHostStart;
+    connectInfo.address = "118.89.125.49";
     connectInfo.path = path;
     connectInfo.host = connectInfo.address;
     connectInfo.method = pVerb;
