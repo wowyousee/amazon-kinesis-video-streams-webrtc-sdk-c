@@ -456,7 +456,7 @@ INT32 lwsWssCallbackRoutine(struct lws* wsi, enum lws_callback_reasons reason, P
             MEMCPY(&pLwsCallInfo->receiveBuffer[LWS_PRE + pLwsCallInfo->receiveBufferSize], pDataIn, dataSize);
             pLwsCallInfo->receiveBufferSize += (UINT32) dataSize;
 
-            // Flush on last
+            // Flush on last //完整消息在receiveLwsMessage处理
             if (lws_is_final_fragment(wsi)) {
                 CHK_STATUS(receiveLwsMessage(pLwsCallInfo->pSignalingClient, (PCHAR) &pLwsCallInfo->receiveBuffer[LWS_PRE],
                                              pLwsCallInfo->receiveBufferSize / SIZEOF(CHAR)));
@@ -553,11 +553,11 @@ STATUS lwsCompleteSync(PLwsCallInfo pCallInfo)
         // Remove the header as it will be added back by LWS
         CHK_STATUS(removeRequestHeader(pCallInfo->callInfo.pRequestInfo, (PCHAR) "user-agent"));
 
-        // Sign the request
-        CHK_STATUS(signAwsRequestInfoQueryParam(pCallInfo->callInfo.pRequestInfo));
+        // // Sign the request
+        // CHK_STATUS(signAwsRequestInfoQueryParam(pCallInfo->callInfo.pRequestInfo));
 
-        // Remove the headers
-        CHK_STATUS(removeRequestHeaders(pCallInfo->callInfo.pRequestInfo));
+        // // Remove the headers
+        // CHK_STATUS(removeRequestHeaders(pCallInfo->callInfo.pRequestInfo));
     } else {
         pVerb = HTTP_REQUEST_VERB_POST_STRING;
 
@@ -1979,6 +1979,7 @@ CleanUp:
 
 STATUS receiveLwsMessage(PSignalingClient pSignalingClient, PCHAR pMessage, UINT32 messageLen)
 {
+    DLOGD("Received ws message:  %s", pMessage);
     ENTERS();
     STATUS retStatus = STATUS_SUCCESS;
     jsmn_parser parser;
