@@ -597,9 +597,17 @@ STATUS lwsCompleteSync(PLwsCallInfo pCallInfo)
     // NULL terminate the host
     *pHostEnd = '\0';
 
-    connectInfo.address = "118.89.125.49";
+    connectInfo.address = "118.89.125.49";//pHostStart
     connectInfo.path = path;
-    connectInfo.host = connectInfo.address;
+
+    CHAR hostBuffer[MAX_URI_CHAR_LEN];
+    if (pCallInfo->pSignalingClient->pChannelInfo->channelRoleType == SIGNALING_CHANNEL_ROLE_TYPE_VIEWER) {
+        SNPRINTF(hostBuffer, MAX_URI_CHAR_LEN, "ClientId=%s", pCallInfo->pSignalingClient->clientInfo.signalingClientInfo.clientId);
+        connectInfo.host = hostBuffer;
+    } else {
+        connectInfo.host = pHostStart;
+    }
+
     connectInfo.method = pVerb;
     connectInfo.protocol = pCallInfo->pSignalingClient->signalingProtocols[pCallInfo->protocolIndex].name;
     connectInfo.pwsi = &clientLws;
